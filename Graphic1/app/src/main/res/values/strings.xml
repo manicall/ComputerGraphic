@@ -1,0 +1,16 @@
+<resources>
+
+    <string name="app_name">Графика</string>
+    <string name="title_activity_main">Графика</string>
+    <string name="navigation_drawer_open">Открыть навигатор</string>
+    <string name="navigation_drawer_close">Закрыть навигатор</string>
+    <string name="nav_header_title">Графика</string>
+    <string name="nav_header_subtitle">Иванов М.А.</string>
+    <string name="nav_header_desc">Заголовок навигатора</string>
+
+    <string name="home">Главный экран</string>
+    <string name="menu_first_graphic">Первый график</string>
+    <string name="menu_second_graphic">Второй график</string>
+    <string name="menu_third_graphic">Третий график</string>
+    <string name="menu_fourth_graphic">Третий график</string>
+</resources>

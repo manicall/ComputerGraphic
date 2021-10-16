@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_first_graphic"
+            android:icon="@drawable/ic_number_small_1_svgrepo_com"
+            android:title="@string/menu_first_graphic" />
+        <item
+            android:id="@+id/nav_second_graphic"
+            android:icon="@drawable/ic_number_small_2_svgrepo_com"
+            android:title="@string/menu_second_graphic" />
+        <item
+            android:id="@+id/nav_third_graphic"
+            android:icon="@drawable/ic_number_small_3_svgrepo_com"
+            android:title="@string/menu_third_graphic" />
+        <item
+            android:id="@+id/nav_fourth_graphic"
+            android:icon="@drawable/ic_number_small_4_svgrepo_com"
+            android:title="@string/menu_fourth_graphic" />
+    </group>
+</menu>
