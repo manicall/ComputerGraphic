@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -23,6 +24,8 @@ class MyView extends View {
     }
 
     ArrayList<ArrayList<Point>> points2D;
+    Polygon polygon;
+
 
 
     boolean flag = false;
@@ -30,11 +33,17 @@ class MyView extends View {
     public void onDraw(@NonNull Canvas canvas) {
         canvas.scale(SCALE, SCALE);
 
+
+
         if (flag == false) {
+            polygon = new Polygon(5, canvas, SCALE);
             points2D = createField(canvas, Color.BLACK);
             Renderer renderer = new Renderer(points2D);
-            createSimplecdaPolygon(canvas, renderer, Color.RED);
-            flag = !flag;
+            //createSimplecdaPolygon(canvas, renderer, Color.RED);
+
+            fillWithStack(canvas);
+            //createBresenhamMBOPolygon(canvas, renderer, Color.GREEN);
+            //flag = !flag;
         }
 
         createPicture(canvas);
@@ -51,6 +60,7 @@ class MyView extends View {
         }
         return points2D;
     }
+
     void createPicture(Canvas canvas){
         for (ArrayList<Point> points : points2D){
             for (Point point : points){
@@ -61,7 +71,6 @@ class MyView extends View {
         }
     }
     public void createBresenhamPolygon(Canvas canvas, Renderer renderer, int color) {
-        Polygon polygon = new Polygon(3, canvas, SCALE);
         ArrayList<Point> vertexes = polygon.getVertexes();
         //соединение вершин кроме первой и последней
         int j = vertexes.size() - 1;
@@ -73,8 +82,28 @@ class MyView extends View {
             j = i;
         }
     }
+
+    public void createBresenhamMBOPolygon(Canvas canvas, Renderer renderer, int color) {
+        ArrayList<Point> vertexes = polygon.getMboVertexes();
+        //соединение вершин кроме первой и последней
+        int j = vertexes.size() - 1;
+        for (int i = 0; i < vertexes.size(); i++) {
+            renderer.bresenham(
+                    vertexes.get(i).getX(), vertexes.get(i).getY(), // p1
+                    vertexes.get(j).getX(), vertexes.get(j).getY(), // p2
+                    color);
+            j = i;
+        }
+
+        for (Point vertex : vertexes){
+            renderer.bresenham(
+                    vertex.getX(), vertex.getY(), // p1
+                    vertex.getX(), vertex.getY(), // p2
+                    Color.MAGENTA);
+        }
+    }
+
     public void createSimplecdaPolygon(Canvas canvas, Renderer renderer, int color) {
-        Polygon polygon = new Polygon(5, canvas, SCALE);
         ArrayList<Point> vertexes = polygon.getVertexes();
         //соединение вершин кроме первой и последней
         int j = vertexes.size() - 1;
@@ -120,11 +149,26 @@ class MyView extends View {
         }
     }
 
+    void fillWithStack(Canvas canvas){
+        Filler filler = new Filler(points2D);
+        int [] arx = new int[polygon.getMboVertexes().size()];
+        int [] ary = new int[polygon.getMboVertexes().size()];
+
+        for(int i = 0; i < polygon.getMboVertexes().size(); i++){
+            arx[i] = polygon.getMboVertexes().get(i).getX();
+            ary[i] = polygon.getMboVertexes().get(i).getY();
+        }
+
+        filler.fillWithStoringInStack(arx, ary, polygon.getMboVertexes().size());
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //recFill(Math.round(event.getX() / SCALE), Math.round(event.getY() / SCALE));
-        fillLineByLine(Math.round(event.getX() / SCALE), Math.round(event.getY() / SCALE));
-        invalidate();
+        //fillLineByLine(Math.round(event.getX() / SCALE), Math.round(event.getY() / SCALE));
+        Log.d("TAG", "onTouchEvent: " + Math.round(event.getX() / SCALE) +
+                " " + Math.round(event.getY() / SCALE));
+        //invalidate();
         return super.onTouchEvent(event);
     }
 
