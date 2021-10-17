@@ -1,6 +1,7 @@
 package com.example.graphic2;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -28,63 +29,57 @@ public class Filler {
             x=stx[--deep];y=sty[deep];
         }*/
         void push(int a, int b){
-            stx[deep]=a;sty[deep++]=b;
+            stx[deep]=a;
+            sty[deep++]=b;
         }
 
         int deep=0;
         int [] stx = new int[1000];
         int [] sty = new int[1000];
-        int xmax=points2D.size()-2, xmin=1, ymax=points2D.get(0).size()-2, ymin=1;
+        int xmax=points2D.size(), xmin=0, ymax=points2D.get(0).size(), ymin=0;
 
-        void flstr(int color, int x, int y)
-        {
+        void flstr(int color, int x, int y) {
+            int mColor = Color.CYAN;
+
             int tempx, xleft, xright;
             int xenter, flag, i;
             push(x,y);
-            while(deep>0)
-            {
-                x=stx[--deep];y=sty[deep];
-                if(getPixel(x,y)!=color)
-                {
-                    setPixel(x,y,color) ;
+            while(deep>0) {
+                Log.d("TAG", "flstr: " + x + " " + y);
+                x=stx[--deep];y=sty[deep]; // pop
+                if(getPixel(x,y)!=color) {
+                    setPixel(x,y,color);
                     tempx=x; //сохранение текущей коорд. x
                     x++;     //перемещение вправо
-                    while(getPixel(x,y)!=color && x<=xmax)
-                        setPixel(x++, y, color);
+                    while(getPixel(x,y)!=color && x<=xmax) setPixel(x++, y, color);
                     xright=x-1;
-                    x=tempx; x--; //перемещение влево
-                    while(getPixel(x,y)!=color && x>=xmin)
-                        setPixel(x--, y, color);
+                    x=tempx;
+                    x--; //перемещение влево
+                    while(getPixel(x,y)!=color && x>=xmin) setPixel(x--, y, color);
                     xleft=x+1;
                     x=tempx;
-                    for(i=0;i<2;i++)
-                    {
+                    for(i=0;i<2;i++) {
                         // при i=0 проверяем нижнюю, а при i=1 - верхнюю строку
-                        if(y<ymax && y>ymin)
-                        {
-                            x=xleft; y+=1-i*2;
-                            while(x<=xright)
-                            {
+                        if(y<=ymax && y>=ymin) {
+                            x=xleft;
+                            y+=1-i*2;
+                            while(x<=xright) {
                                 flag=0;
-                                while(getPixel(x,y)!=color && x<xright)
-                                {
+                                while(getPixel(x,y)!=color && x<=xright) {
                                     if(flag==0) flag=1;
                                     x++;
                                 }
-                                if (flag==1)
-                                {
-                                    if(x==xright &&
-                                            getPixel(x,y)!=color)
-                                    {
+                                if (flag==1) {
+                                    if(x==xright && getPixel(x,y)!=color) {
                                         push(x,y);
+                                    } else {
+                                        push(x-1,y);
                                     }
-                                    else
-                                    {push(x-1,y);}
                                     flag=0;
                                 }
+
                                 xenter=x;
-                                while(getPixel(x,y)==color && x<xright)
-                                    x++;
+                                while(getPixel(x,y)==color && x<=xright) x++;
                                 if(x==xenter) x++;
                             }
                         }
@@ -93,6 +88,9 @@ public class Filler {
                 }
             }
         }
+
+
+
         int getPixel(int x, int y){
             return points2D.get(x).get(y).getColor();
         }

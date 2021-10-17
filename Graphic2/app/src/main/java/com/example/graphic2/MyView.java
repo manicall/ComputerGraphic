@@ -33,8 +33,7 @@ class MyView extends View {
         if (flag == false) {
             points2D = createField(canvas, Color.BLACK);
             Renderer renderer = new Renderer(points2D);
-            createPolygon(canvas, renderer, Color.RED);
-            createPolygon(canvas, renderer, Color.RED);
+            createSimplecdaPolygon(canvas, renderer, Color.RED);
             flag = !flag;
         }
 
@@ -61,13 +60,26 @@ class MyView extends View {
             }
         }
     }
-    public void createPolygon(Canvas canvas, Renderer renderer, int color) {
+    public void createBresenhamPolygon(Canvas canvas, Renderer renderer, int color) {
         Polygon polygon = new Polygon(3, canvas, SCALE);
         ArrayList<Point> vertexes = polygon.getVertexes();
         //соединение вершин кроме первой и последней
         int j = vertexes.size() - 1;
         for (int i = 0; i < vertexes.size(); i++) {
             renderer.bresenham(
+                    vertexes.get(i).getX(), vertexes.get(i).getY(), // p1
+                    vertexes.get(j).getX(), vertexes.get(j).getY(), // p2
+                    color);
+            j = i;
+        }
+    }
+    public void createSimplecdaPolygon(Canvas canvas, Renderer renderer, int color) {
+        Polygon polygon = new Polygon(5, canvas, SCALE);
+        ArrayList<Point> vertexes = polygon.getVertexes();
+        //соединение вершин кроме первой и последней
+        int j = vertexes.size() - 1;
+        for (int i = 0; i < vertexes.size(); i++) {
+            renderer.simplecda(
                     vertexes.get(i).getX(), vertexes.get(i).getY(), // p1
                     vertexes.get(j).getX(), vertexes.get(j).getY(), // p2
                     color);

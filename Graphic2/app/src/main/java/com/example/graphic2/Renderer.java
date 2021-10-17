@@ -64,7 +64,7 @@ public class Renderer {
         x=x0; y=y0; accx= accy = length;
         for (i=0; i<=length; i++)
         {
-            //canvas.drawPoint (x, y, mPaint);
+            points2D.get(x).get(y).setColor(color);
             accx+=deltax; accy+= deltay;
             if (accx>=maxacc)
             {
