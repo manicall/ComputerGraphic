@@ -1,6 +1,5 @@
 package com.example.graphic2;
 
-import android.graphics.Color;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -13,16 +12,19 @@ public class Filler {
 
     }
 
-    void fill(int oldColor, int newColor, int x, int y)
+    void recFill(int oldColor, int newColor, int x, int y)
     {
         if (points2D.get(x).get(y).getColor() != oldColor) return;
         points2D.get(x).get(y).setColor(newColor);
-        fill(oldColor, newColor, x - 1, y);
-        fill(oldColor, newColor, x + 1, y);
-        fill(oldColor, newColor, x, y - 1);
-        fill(oldColor, newColor, x, y + 1);
+        recFill(oldColor, newColor, x - 1, y);
+        recFill(oldColor, newColor, x + 1, y);
+        recFill(oldColor, newColor, x, y - 1);
+        recFill(oldColor, newColor, x, y + 1);
     }
-//  class FillerWithStoringBorderPointsInTheStack{
+    class FillerWithStoringBorderPointsInTheStack{
+
+
+    }
     class FillerLineByLineWithSeed{
 
         /*void pop(){
@@ -38,24 +40,22 @@ public class Filler {
         int [] sty = new int[1000];
         int xmax=points2D.size(), xmin=0, ymax=points2D.get(0).size(), ymin=0;
 
-        void flstr(int color, int x, int y) {
-            int mColor = Color.CYAN;
-
+        void flstr(int oldColor, int newColor, int x, int y) {
             int tempx, xleft, xright;
             int xenter, flag, i;
             push(x,y);
             while(deep>0) {
                 Log.d("TAG", "flstr: " + x + " " + y);
                 x=stx[--deep];y=sty[deep]; // pop
-                if(getPixel(x,y)!=color) {
-                    setPixel(x,y,color);
+                if(getPixel(x,y)==oldColor) {
+                    setPixel(x,y,newColor);
                     tempx=x; //сохранение текущей коорд. x
                     x++;     //перемещение вправо
-                    while(getPixel(x,y)!=color && x<=xmax) setPixel(x++, y, color);
+                    while(getPixel(x,y)==oldColor && x<=xmax) setPixel(x++, y, newColor);
                     xright=x-1;
                     x=tempx;
                     x--; //перемещение влево
-                    while(getPixel(x,y)!=color && x>=xmin) setPixel(x--, y, color);
+                    while(getPixel(x,y)==oldColor && x>=xmin) setPixel(x--, y, newColor);
                     xleft=x+1;
                     x=tempx;
                     for(i=0;i<2;i++) {
@@ -65,12 +65,12 @@ public class Filler {
                             y+=1-i*2;
                             while(x<=xright) {
                                 flag=0;
-                                while(getPixel(x,y)!=color && x<=xright) {
+                                while(getPixel(x,y)==oldColor && x<=xright) {
                                     if(flag==0) flag=1;
                                     x++;
                                 }
                                 if (flag==1) {
-                                    if(x==xright && getPixel(x,y)!=color) {
+                                    if(x==xright && getPixel(x,y)==oldColor) {
                                         push(x,y);
                                     } else {
                                         push(x-1,y);
@@ -79,7 +79,7 @@ public class Filler {
                                 }
 
                                 xenter=x;
-                                while(getPixel(x,y)==color && x<=xright) x++;
+                                while(getPixel(x,y)==newColor && x<=xright) x++;
                                 if(x==xenter) x++;
                             }
                         }
@@ -101,11 +101,15 @@ public class Filler {
 
     }
 
-    void fillLineByLine(int color, int x, int y){
+    void fillLineByLine(int oldColor, int newColor, int x, int y){
         FillerLineByLineWithSeed filler = new FillerLineByLineWithSeed();
-        filler.flstr(color, x, y);
+        filler.flstr(oldColor, newColor, x, y);
     }
-
+/*    void fillWithStoringInStack(int color, int x, int y){
+        FillerWithStoringBorderPointsInTheStack filler =
+                new FillerWithStoringBorderPointsInTheStack();
+        filler.flstr(color, x, y);
+    }*/
 
 
 

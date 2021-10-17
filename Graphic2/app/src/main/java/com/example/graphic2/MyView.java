@@ -93,19 +93,31 @@ class MyView extends View {
         int newColor = Color.CYAN;
         try {
             // пытаемся заполнить
-            filler.fill(oldColor, newColor, x, y);
+            filler.recFill(oldColor, newColor, x, y);
         } catch (Exception e) {
             // устраняем последствия не правильного заполнения
             try {
-                filler.fill(newColor, oldColor, x, y);
+                filler.recFill(newColor, oldColor, x, y);
             } catch (Exception exception) {
 
             }
         }
     }
+
     void fillLineByLine(int x, int y){
+        int oldColor = Color.BLACK;
+        int newColor = Color.CYAN;
         Filler filler = new Filler(points2D);
-        filler.fillLineByLine(Color.RED, x, y);
+        try {
+            filler.fillLineByLine(oldColor, newColor, x, y);
+        } catch (Exception e) {
+            // устраняем последствия не правильного заполнения
+            try {
+                filler.fillLineByLine(newColor, oldColor, x, y);
+            } catch (Exception exception) {
+
+            }
+        }
     }
 
     @Override
