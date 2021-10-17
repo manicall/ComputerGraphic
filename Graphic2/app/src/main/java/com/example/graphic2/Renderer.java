@@ -4,16 +4,16 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import java.util.ArrayList;
+
 public class Renderer {
-    private Canvas canvas;
-    Renderer(Canvas canvas){
-        this.canvas = canvas;
+    private ArrayList<ArrayList<Point>> points2D;
+    Renderer(ArrayList<ArrayList<Point>> points2D){
+        this.points2D = points2D;
     }
     //Функция вывода отрезка по алгоритму Брезенхема
     void bresenham(int ix0, int iy0, int ix1, int iy1, int color)
     {
-        Paint mPaint = new Paint();
-        mPaint.setColor(color);
         int ix, iy, delta_x, delta_y, esh, sx, sy;
         int register, temp, swab, i;
         ix=ix0; iy=iy0;
@@ -34,7 +34,7 @@ public class Renderer {
         esh=2*delta_y-delta_x;
         for(i=0;i<=delta_x;i++)
         {
-            canvas.drawPoint (ix,iy, mPaint);
+            points2D.get(ix).get(iy).setColor(color);
             if(esh>=0)
             {
                 if (swab==1) ix=ix+sx; else iy=iy+sy;
@@ -64,7 +64,7 @@ public class Renderer {
         x=x0; y=y0; accx= accy = length;
         for (i=0; i<=length; i++)
         {
-            canvas.drawPoint (x, y, mPaint);
+            //canvas.drawPoint (x, y, mPaint);
             accx+=deltax; accy+= deltay;
             if (accx>=maxacc)
             {
