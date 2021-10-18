@@ -1,7 +1,5 @@
 package com.example.graphic2;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -22,9 +20,9 @@ public class Filler {
         recFill(oldColor, newColor, x, y + 1);
     }
 
-    void fillLineByLine(int oldColor, int newColor, int x, int y) {
+    void fillLineByLine(int oldColor, int newColor, Point point) {
         FillerLineByLineWithSeed filler = new FillerLineByLineWithSeed();
-        filler.flstr(oldColor, newColor, x, y);
+        filler.flstr(oldColor, newColor, point);
     }
 
     void fillWithStoringInStack(int borderColor, int color){
@@ -33,17 +31,6 @@ public class Filler {
         filler.fillStack(borderColor, color);
     }
 
-    int getPixel(int x, int y) {
-        return points2D.get(x).get(y).getColor();
-    }
-
-    void setPixel(int x, int y, int color) {
-        points2D.get(x).get(y).setColor(color);
-    }
-
-    void setPixel(Point point, int color) {
-        points2D.get(point.getX()).get(point.getY()).setColor(color);
-    }
 
     class FillerWithStoringBorderPointsInTheStack {
         public void fillStack(int borderColor, int color) {
@@ -108,67 +95,110 @@ public class Filler {
 
     class FillerLineByLineWithSeed {
         int deep = 0;
-        int[] stx = new int[1000];
-        int[] sty = new int[1000];
-        int xmax = points2D.size(), xmin = 0, ymax = points2D.get(0).size(), ymin = 0;
+        Stack<Point> sPoints = new Stack<>();
 
-        void push(int a, int b) {
-            stx[deep] = a;
-            sty[deep++] = b;
-        }
+        Point min = new Point(0, 0);
+        Point max = new Point(points2D.size(), points2D.get(0).size());
+
 
         void flstr(int oldColor, int newColor, Point point) {
 
-            int xCurrent, xLeft, xRight;
-            int xEnter, flag, i;
-            push(x, y);
-            while (deep > 0) {
+            int xLeft, xRight;
+            int xEnter;
+            boolean flag;
+            sPoints.push(point);
+            while (!sPoints.empty()) {
+                point = sPoints.pop();
 
-                x = stx[--deep];
-                y = sty[deep]; // pop
+                if (getPixel(point) == oldColor) {
 
-                if (getPixel(x, y) == oldColor) {
-                    setPixel(x, y, newColor);
-                    xCurrent = x; //сохранение текущей коорд. x
-                    x++;     //перемещение вправо
-                    while (getPixel(x, y) == oldColor && x <= xmax) setPixel(x++, y, newColor);
-                    xRight = x - 1;
-                    x = xCurrent;
-                    x--; //перемещение влево
-                    while (getPixel(x, y) == oldColor && x >= xmin) setPixel(x--, y, newColor);
-                    xLeft = x + 1;
-                    x = xCurrent;
-                    for (i = 0; i < 2; i++) {
+                    int [] horizontalBorders = paintHorizontalLine(oldColor, newColor, point);
+                    xLeft = horizontalBorders[0];
+                    xRight = horizontalBorders[1];
+
+                    for (int i = 0; i < 2; i++) {
                         // при i=0 проверяем нижнюю, а при i=1 - верхнюю строку
-                        if (y <= ymax && y >= ymin) {
-                            x = xLeft;
-                            y += 1 - i * 2;
-                            while (x <= xRight) {
-                                flag = 0;
-                                while (getPixel(x, y) == oldColor && x <= xRight) {
-                                    if (flag == 0) flag = 1;
-                                    x++;
-                                }
-                                if (flag == 1) {
-                                    if (x == xRight && getPixel(x, y) == oldColor) {
-                                        push(x, y);
-                                    } else {
-                                        push(x - 1, y);
-                                    }
-                                    flag = 0;
-                                }
+                        if (point.getY() <= max.getY() && point.getY() >= min.getY()) {
+                            point.setX(xLeft);
+                            point.increaseY(1 - i * 2);
 
-                                xEnter = x;
-                                while (getPixel(x, y) == newColor && x <= xRight) x++;
-                                if (x == xEnter) x++;
+                            while (point.getX() <= xRight) {
+                                flag = false;
+                                while (getPixel(point) == oldColor && point.getX() <= xRight) {
+                                    if (!flag) flag = true;
+                                    point.incrementX();
+                                }
+                                if (flag) {
+                                    if (point.getX() == xRight && getPixel(point) == oldColor) {
+                                        sPoints.push(point);
+                                    } else {
+                                        sPoints.push(new Point(point.getX() - 1, point.getY()));
+                                    }
+                                }
+                                xEnter = point.getX();
+                                while (getPixel(point) == newColor && point.getX() <= xRight)
+                                    point.incrementX();
+                                if (point.getX() == xEnter) point.incrementX();
                             }
                         }
-                        y--;
+                        point.decrementY();
                     }
                 }
             }
         }
 
+
+
+        int [] paintHorizontalLine(int oldColor, int newColor, Point point){
+            setPixel(point, newColor);
+            //сохранение текущей коорд. x
+            int xCurrent = point.getX();
+
+            paintRight(oldColor, newColor, point);
+            int xRight = point.getX() - 1;
+            // возврат c перемещением влево
+            point.setX(xCurrent - 1);
+            paintLeft(oldColor, newColor, point);
+
+            int xLeft = point.getX() + 1;
+            point.setX(xCurrent);
+
+            return new int []{xLeft, xRight};
+        }
+
+        void paintRight(int oldColor, int newColor, Point point){
+            point.incrementX(); // перемещение вправо
+            while (getPixel(point) == oldColor && point.getX() <= max.getX()) {
+                setPixel(point, newColor);
+                point.incrementX();
+            }
+        }
+
+        void paintLeft(int oldColor, int newColor, Point point){
+            while (getPixel(point) == oldColor && point.getX() >= min.getX()) {
+                setPixel(point, newColor);
+                point.decrementX();
+            }
+        }
+
+
+
+    }
+
+    int getPixel(int x, int y) {
+        return points2D.get(x).get(y).getColor();
+    }
+
+    private int getPixel(Point point) {
+        return points2D.get(point.getX()).get(point.getY()).getColor();
+    }
+
+    void setPixel(int x, int y, int color) {
+        points2D.get(x).get(y).setColor(color);
+    }
+
+    void setPixel(Point point, int color) {
+        points2D.get(point.getX()).get(point.getY()).setColor(color);
     }
 
 }

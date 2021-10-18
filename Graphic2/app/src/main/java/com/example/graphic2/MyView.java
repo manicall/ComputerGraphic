@@ -34,7 +34,7 @@ class MyView extends View {
         canvas.scale(SCALE, SCALE); // увеличиваем масштаб изображения
         // строим поле и прямоугольник,
         // если они еще не были построенны
-        if (isPolygonCreated == false) {
+        if (!isPolygonCreated) {
 
             polygon = new Polygon(7, canvas, SCALE);
             points2D = createField(canvas, FIELD_COLOR);
@@ -118,15 +118,15 @@ class MyView extends View {
         }
     }
 
-    void fillLineByLine(int oldColor, int newColor, int x, int y){
+    void fillLineByLine(int oldColor, int newColor, Point point){
         Filler filler = new Filler(points2D);
         try {
             // пытаемся заполнить
-            filler.fillLineByLine(oldColor, newColor, x, y);
+            filler.fillLineByLine(oldColor, newColor, point);
         } catch (Exception e) {
             // устраняем последствия не правильного заполнения
             try {
-                filler.fillLineByLine(newColor, oldColor, x, y);
+                filler.fillLineByLine(newColor, oldColor, point);
             } catch (Exception exception) {
 
             }
@@ -178,8 +178,9 @@ class MyView extends View {
             case SIMPLE_DDA__STRING_FILL_WITH_SEED:
                 int newColor = Color.CYAN;
                 fillLineByLine(oldColor, newColor,
+                        new Point(
                         Math.round(event.getX() / SCALE),
-                        Math.round(event.getY() / SCALE));
+                        Math.round(event.getY() / SCALE)));
                 break;
             case BRESENHAM__WITH_STORING_POINTS_OF_BORDER_IN_STACK:
                 int color = Color.MAGENTA;
