@@ -68,8 +68,20 @@ public class Renderer {
             accumulatorX += delta.getX();
             accumulatorY += delta.getY();
 
-            changePointCoordinate(accumulatorX, maxAccumulator, point, point.getX());
-            changePointCoordinate(accumulatorY, maxAccumulator, point, point.getY());
+            if (accumulatorX >= maxAccumulator) {
+                accumulatorX -= maxAccumulator;
+                point.incrementX();
+            } else if (accumulatorX < 0) {
+                accumulatorX += maxAccumulator;
+                point.decrementX();
+            }
+            if (accumulatorY >= maxAccumulator) {
+                accumulatorY -= maxAccumulator;
+                point.incrementY();
+            } else if (accumulatorY < 0) {
+                accumulatorY += maxAccumulator;
+                point.decrementY();
+            }
         }
     }
 
