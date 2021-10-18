@@ -41,9 +41,10 @@ class MyView extends View {
             Renderer renderer = new Renderer(points2D);
             //createSimplecdaPolygon(canvas, renderer, Color.RED);
 
+
+            createBresenhamMBOPolygon(canvas, renderer, Color.GREEN);
             fillWithStack(canvas);
-            //createBresenhamMBOPolygon(canvas, renderer, Color.GREEN);
-            //flag = !flag;
+            flag = !flag;
         }
 
         createPicture(canvas);
@@ -151,15 +152,7 @@ class MyView extends View {
 
     void fillWithStack(Canvas canvas){
         Filler filler = new Filler(points2D);
-        int [] arx = new int[polygon.getMboVertexes().size()];
-        int [] ary = new int[polygon.getMboVertexes().size()];
-
-        for(int i = 0; i < polygon.getMboVertexes().size(); i++){
-            arx[i] = polygon.getMboVertexes().get(i).getX();
-            ary[i] = polygon.getMboVertexes().get(i).getY();
-        }
-
-        filler.fillWithStoringInStack(arx, ary, polygon.getMboVertexes().size());
+        filler.fillWithStoringInStack(polygon);
     }
 
     @Override
@@ -168,7 +161,7 @@ class MyView extends View {
         //fillLineByLine(Math.round(event.getX() / SCALE), Math.round(event.getY() / SCALE));
         Log.d("TAG", "onTouchEvent: " + Math.round(event.getX() / SCALE) +
                 " " + Math.round(event.getY() / SCALE));
-        //invalidate();
+        invalidate();
         return super.onTouchEvent(event);
     }
 

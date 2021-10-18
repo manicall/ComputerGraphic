@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class Filler {
 
@@ -28,10 +29,10 @@ public class Filler {
         filler.flstr(oldColor, newColor, x, y);
     }
 
-    void fillWithStoringInStack(int[] arx, int[] ary, int dimar){
+    void fillWithStoringInStack(Polygon polygon){
         FillerWithStoringBorderPointsInTheStack filler =
                 new FillerWithStoringBorderPointsInTheStack();
-        filler.fl(arx, ary, dimar);
+        filler.fillStack(polygon);
     }
 
     int getPixel(int x, int y) {
@@ -43,102 +44,23 @@ public class Filler {
     }
 
     class FillerWithStoringBorderPointsInTheStack {
-        int deep = 0;
-        int[] stx = new int[1000];
-
-        void push(int x) {
-            stx[deep++] = x;
-        }
-
-        void horline(int y, int x0, int x1, int color) {
-            int i;
-            if (x0 > x1) {
-                i = x1;
-                x1 = x0;
-                x0 = i;
-            }
-
-            for (i = x0; i <= x1; i++) {
-                Log.d("TAG", "horline: " + i + " " + y);
-                setPixel(i, y, color);
-            }
-        }
-
-        void fl(int[] arx, int[] ary, int dimar) {
-
-
-
-            int i0, iglob, ix0, iy0, ix1, iy1;
-            int ymin;
-            int ix, iy, deltax, deltay, esh, sx, sy;
-            int temp, swab, i;
-            //Находим наименьший ary[i]
-            i0 = 0;
-            ymin = ary[0];
-            for (i = 0; i < dimar; i++) {
-                if (ary[i] < ymin) {
-                    i0 = i;
-                    ymin = ary[i];
-                }
-            }
-            //на отрезке (i, i+1) проводим прямую линию от
-            //arx[i], ary[i] до  arx[i+1], ary[i+1]
-            iglob = i0;
-            do {
-                ix0 = arx[iglob];
-                iy0 = ary[iglob];
-                iglob++;
-                if (iglob == dimar) iglob = 0;
-                ix1 = arx[iglob];
-                iy1 = ary[iglob];
-                //Основной цикл — вывод отрезка по алгоритму Брезенхема
-                ix = ix0;
-                iy = iy0;
-                deltax = Math.abs(ix1 - ix0);
-                deltay = Math.abs(iy1 - iy0);
-                if (ix1 - ix0 >= 0) sx = 1;
-                else sx = -1;
-                if (iy1 - iy0 >= 0) sy = 1;
-                else sy = -1;
-/*                if (ix1==ix0) sx=0;
-                if (iy1==iy0) sy=0;*/
-                if (deltay > deltax) {
-                    temp = deltax;
-                    deltax = deltay;
-                    deltay = temp;
-                    swab = 1;
-                } else swab = 0;
-                esh = 2 * deltay - deltax;
-                for (i = 1; i <= deltax; i++) {
-                    while (esh >= 0) {
-                        if (swab == 1) ix += sx;
-                        else {
-                            iy += sy;
-                            if (sy == 1) push(ix);
-                            if (sy == -1) {
-                                temp = stx[--deep]; // pop
-                                horline(iy, ix, temp, Color.RED);
-                            }
-                        }
-                        esh = esh - 2 * deltax;
+        void fillStack(Polygon polygon) {
+            Stack<Point> sPoints = new Stack<>();
+            for (int i = 0; i < points2D.size(); i++){
+                for (int j = 0; j < points2D.get(i).size(); j++){
+                    if (getPixel(i, j) == Color.GREEN) {
+                        sPoints.push(points2D.get(i).get(j));
                     }
-                    if (swab == 1) {
-                        iy += sy;
-                        if (sy == 1) push(ix);
-                        if (sy == -1) {
-                            temp = stx[--deep];
-                            horline(iy, ix, temp, Color.RED);
-                        }
-                    } else ix += sx;
-                    esh += 2 * deltay;
                 }
             }
-            while (i0 != iglob);
-            for (int i1 = 0; i1 < dimar; i1++){
-                setPixel(arx[i1], ary[i1], Color.MAGENTA);
-            }
-        }
 
+            while (!sPoints.empty()){
+                Point point = sPoints.pop();
+                setPixel(point.getX(), point.getY(), Color.BLUE);
+                //setPixel(point.getX() + 1, point.getY(), Color.GREEN);
+            }
+
+        }
     }
 
     class FillerLineByLineWithSeed {
