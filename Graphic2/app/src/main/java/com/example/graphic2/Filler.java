@@ -1,6 +1,5 @@
 package com.example.graphic2;
 
-import android.graphics.Color;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -15,8 +14,8 @@ public class Filler {
     }
 
     void recFill(int oldColor, int newColor, int x, int y) {
-        if (points2D.get(x).get(y).getColor() != oldColor) return;
-        points2D.get(x).get(y).setColor(newColor);
+        if (getPixel(x, y) != oldColor) return;
+        setPixel(x, y, newColor);
         recFill(oldColor, newColor, x - 1, y);
         recFill(oldColor, newColor, x + 1, y);
         recFill(oldColor, newColor, x, y - 1);
@@ -42,8 +41,59 @@ public class Filler {
         points2D.get(x).get(y).setColor(color);
     }
 
+    void setPixel(Point point, int color) {
+        points2D.get(point.getX()).get(point.getY()).setColor(color);
+    }
+
     class FillerWithStoringBorderPointsInTheStack {
-        void fillStack(int borderColor, int color) {
+        public void fillStack(int borderColor, int color) {
+            Stack<Point> sPoints = getStack(borderColor);
+            while (!sPoints.empty()){
+                Renderer renderer = new Renderer(points2D);
+
+                Point startPoint = sPoints.pop();
+                Point [] points = findPoints(startPoint, sPoints);
+
+                if (sPoints.empty()) return;
+
+                startPoint = points[0];
+                Point endPoint = points[1];
+
+                Point cloneStartPoint = startPoint.clone();
+                Point cloneEndPoint = endPoint.clone();
+                // сужаем разрыв между точками, чтобы
+                // заливка не попала на границу многоугольника
+                cloneStartPoint.decrementY();
+                cloneEndPoint.incrementY();
+
+                renderer.bresenham(cloneStartPoint, cloneEndPoint, color);
+            }
+
+        }
+
+        // находим две точки на одной оси x между которорыми разрыв
+        // составляет больше единицы
+        Point [] findPoints(Point startPoint, Stack<Point> sPoints){
+            Point endPoint;
+            while (true)
+            {
+                if (sPoints.empty()) return new Point[] { null };
+                endPoint = sPoints.pop();
+                // если новая точка не сместилась по оси Х
+                if (endPoint.getX() == startPoint.getX()) {
+                    // если разрыв  между точками не составляет больше единицы
+                    if(endPoint.getY() == startPoint.getY() - 1) {
+                        startPoint = endPoint;
+                        continue;
+                    }
+                    else break;
+                }
+                startPoint = endPoint;
+            }
+            return new Point[] {startPoint, endPoint};
+        }
+
+        private Stack<Point> getStack(int borderColor){
             Stack<Point> sPoints = new Stack<>();
             for (int i = 0; i < points2D.size(); i++){
                 for (int j = 0; j < points2D.get(i).size(); j++){
@@ -52,38 +102,7 @@ public class Filler {
                     }
                 }
             }
-
-            while (true){
-                Renderer renderer = new Renderer(points2D);
-
-                Point point0;
-                Point point1;
-                if (sPoints.empty()) return;
-                point0 = sPoints.pop();
-                while (true)
-                {
-                    if (sPoints.empty()) return;
-                    point1 = sPoints.pop();
-                    if (point1.getX() == point0.getX()) {
-                        if(point1.getY() == point0.getY() - 1) {
-                            point0 = point1;
-                            continue;
-                        }
-                        else {
-                            break;
-                        }
-                    }
-                    point0 = point1;
-                }
-
-                Point newPoint0 = point0.clone();
-                Point newPoint1 = point1.clone();
-                newPoint0.decrementY();
-                newPoint1.incrementY();
-
-                renderer.bresenham(newPoint0, newPoint1, color);
-            }
-
+            return sPoints;
         }
     }
 
@@ -98,14 +117,16 @@ public class Filler {
             sty[deep++] = b;
         }
 
-        void flstr(int oldColor, int newColor, int x, int y) {
+        void flstr(int oldColor, int newColor, Point point) {
+
             int xCurrent, xLeft, xRight;
             int xEnter, flag, i;
             push(x, y);
             while (deep > 0) {
-                Log.d("TAG", "flstr: " + x + " " + y);
+
                 x = stx[--deep];
                 y = sty[deep]; // pop
+
                 if (getPixel(x, y) == oldColor) {
                     setPixel(x, y, newColor);
                     xCurrent = x; //сохранение текущей коорд. x

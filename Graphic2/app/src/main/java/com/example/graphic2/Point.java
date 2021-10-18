@@ -56,14 +56,14 @@ public class Point {
 
     public void incrementY() { ++y; }
 
-    public void increment(int coordinate) {
-        if (coordinate == x) incrementX();
-        else if (coordinate == y) incrementY();
+    public void increment(String coordinate) {
+        if (coordinate.equals("x")) incrementX();
+        else if (coordinate.equals("y")) incrementY();
     }
 
-    public void decrement(int coordinate) {
-        if (coordinate == x) decrementX();
-        else if (coordinate == y) decrementY();
+    public void decrement(String coordinate) {
+        if (coordinate.equals("x")) decrementX();
+        else if (coordinate.equals("y")) decrementY();
     }
 
     public void decrementX() { --x; }

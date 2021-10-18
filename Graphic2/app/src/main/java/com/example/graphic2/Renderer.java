@@ -20,10 +20,10 @@ public class Renderer {
         int incrementY = getIncrement(secondPoint.diffY(firstPoint));
 
         //Обмен значений delta_x delta_y в зависимости от угла
-        boolean swab = false;
+        boolean isDeltaYBiggerThanDeltaX = false;
         if (delta.getY() > delta.getX()) {
             delta.swap();
-            swab = true;
+            isDeltaYBiggerThanDeltaX = true;
         }
 
         //Инициализация Е с поправкой на половину пиксела
@@ -31,11 +31,11 @@ public class Renderer {
         for (int i = 0; i <= delta.getX(); i++) {
             setPixel(point, color);
             if (esh >= 0) {
-                if (swab) point.increaseX(incrementX);
+                if (isDeltaYBiggerThanDeltaX) point.increaseX(incrementX);
                 else point.increaseY(incrementY);
                 esh -= 2 * delta.getX();
             }
-            if (!swab) point.increaseX(incrementX);
+            if (!isDeltaYBiggerThanDeltaX) point.increaseX(incrementX);
             else point.increaseY(incrementY);
             esh += 2 * delta.getY();
         }
@@ -48,6 +48,9 @@ public class Renderer {
     }
 
     void simplecda(Point firstPoint, Point secondPoint, int color) {
+        String X = "x";
+        String Y = "y";
+
         // максимум приращений по x и по y
         int length = Math.max(
                 Math.abs(secondPoint.diffX(firstPoint)),
@@ -68,24 +71,12 @@ public class Renderer {
             accumulatorX += delta.getX();
             accumulatorY += delta.getY();
 
-            if (accumulatorX >= maxAccumulator) {
-                accumulatorX -= maxAccumulator;
-                point.incrementX();
-            } else if (accumulatorX < 0) {
-                accumulatorX += maxAccumulator;
-                point.decrementX();
-            }
-            if (accumulatorY >= maxAccumulator) {
-                accumulatorY -= maxAccumulator;
-                point.incrementY();
-            } else if (accumulatorY < 0) {
-                accumulatorY += maxAccumulator;
-                point.decrementY();
-            }
+            accumulatorX = changePointCoordinate(accumulatorX, maxAccumulator, point, X);
+            accumulatorY = changePointCoordinate(accumulatorY, maxAccumulator, point, Y);
         }
     }
 
-    int changePointCoordinate(int accumulator, int maxAccumulator, Point point, int coordinate){
+    int changePointCoordinate(int accumulator, int maxAccumulator, Point point, String coordinate){
         if (accumulator >= maxAccumulator) {
             accumulator -= maxAccumulator;
             point.increment(coordinate);
