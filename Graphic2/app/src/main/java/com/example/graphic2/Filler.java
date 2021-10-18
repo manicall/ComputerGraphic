@@ -29,10 +29,10 @@ public class Filler {
         filler.flstr(oldColor, newColor, x, y);
     }
 
-    void fillWithStoringInStack(Polygon polygon){
+    void fillWithStoringInStack(Polygon polygon, int borderColor, int color){
         FillerWithStoringBorderPointsInTheStack filler =
                 new FillerWithStoringBorderPointsInTheStack();
-        filler.fillStack(polygon);
+        filler.fillStack(polygon, borderColor, color);
     }
 
     int getPixel(int x, int y) {
@@ -44,11 +44,11 @@ public class Filler {
     }
 
     class FillerWithStoringBorderPointsInTheStack {
-        void fillStack(Polygon polygon) {
+        void fillStack(Polygon polygon, int borderColor, int color) {
             Stack<Point> sPoints = new Stack<>();
             for (int i = 0; i < points2D.size(); i++){
                 for (int j = 0; j < points2D.get(i).size(); j++){
-                    if (getPixel(i, j) == Color.GREEN || getPixel(i, j) == Color.MAGENTA) {
+                    if (getPixel(i, j) == borderColor) {
                         sPoints.push(points2D.get(i).get(j));
                     }
                 }
@@ -78,7 +78,7 @@ public class Filler {
                 }
 
                 renderer.bresenham(point0.getX(), point0.getY() - 1,
-                        point1.getX(), point1.getY() + 1, Color.RED);
+                        point1.getX(), point1.getY() + 1, color);
             }
 
         }
