@@ -48,16 +48,37 @@ public class Filler {
             Stack<Point> sPoints = new Stack<>();
             for (int i = 0; i < points2D.size(); i++){
                 for (int j = 0; j < points2D.get(i).size(); j++){
-                    if (getPixel(i, j) == Color.GREEN) {
+                    if (getPixel(i, j) == Color.GREEN || getPixel(i, j) == Color.MAGENTA) {
                         sPoints.push(points2D.get(i).get(j));
                     }
                 }
             }
 
-            while (!sPoints.empty()){
-                Point point = sPoints.pop();
-                setPixel(point.getX(), point.getY(), Color.BLUE);
-                //setPixel(point.getX() + 1, point.getY(), Color.GREEN);
+            while (true){
+                Renderer renderer = new Renderer(points2D);
+
+                Point point0;
+                Point point1;
+                if (sPoints.empty()) return;
+                point0 = sPoints.pop();
+                while (true)
+                {
+                    if (sPoints.empty()) return;
+                    point1 = sPoints.pop();
+                    if (point1.getX() == point0.getX()) {
+                        if(point1.getY() == point0.getY() - 1) {
+                            point0 = point1;
+                            continue;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    point0 = point1;
+                }
+
+                renderer.bresenham(point0.getX(), point0.getY() - 1,
+                        point1.getX(), point1.getY() + 1, Color.RED);
             }
 
         }
@@ -79,8 +100,8 @@ public class Filler {
         }
 
         void flstr(int oldColor, int newColor, int x, int y) {
-            int tempx, xleft, xright;
-            int xenter, flag, i;
+            int xCurrent, xLeft, xRight;
+            int xEnter, flag, i;
             push(x, y);
             while (deep > 0) {
                 Log.d("TAG", "flstr: " + x + " " + y);
@@ -88,28 +109,28 @@ public class Filler {
                 y = sty[deep]; // pop
                 if (getPixel(x, y) == oldColor) {
                     setPixel(x, y, newColor);
-                    tempx = x; //сохранение текущей коорд. x
+                    xCurrent = x; //сохранение текущей коорд. x
                     x++;     //перемещение вправо
                     while (getPixel(x, y) == oldColor && x <= xmax) setPixel(x++, y, newColor);
-                    xright = x - 1;
-                    x = tempx;
+                    xRight = x - 1;
+                    x = xCurrent;
                     x--; //перемещение влево
                     while (getPixel(x, y) == oldColor && x >= xmin) setPixel(x--, y, newColor);
-                    xleft = x + 1;
-                    x = tempx;
+                    xLeft = x + 1;
+                    x = xCurrent;
                     for (i = 0; i < 2; i++) {
                         // при i=0 проверяем нижнюю, а при i=1 - верхнюю строку
                         if (y <= ymax && y >= ymin) {
-                            x = xleft;
+                            x = xLeft;
                             y += 1 - i * 2;
-                            while (x <= xright) {
+                            while (x <= xRight) {
                                 flag = 0;
-                                while (getPixel(x, y) == oldColor && x <= xright) {
+                                while (getPixel(x, y) == oldColor && x <= xRight) {
                                     if (flag == 0) flag = 1;
                                     x++;
                                 }
                                 if (flag == 1) {
-                                    if (x == xright && getPixel(x, y) == oldColor) {
+                                    if (x == xRight && getPixel(x, y) == oldColor) {
                                         push(x, y);
                                     } else {
                                         push(x - 1, y);
@@ -117,9 +138,9 @@ public class Filler {
                                     flag = 0;
                                 }
 
-                                xenter = x;
-                                while (getPixel(x, y) == newColor && x <= xright) x++;
-                                if (x == xenter) x++;
+                                xEnter = x;
+                                while (getPixel(x, y) == newColor && x <= xRight) x++;
+                                if (x == xEnter) x++;
                             }
                         }
                         y--;

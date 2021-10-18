@@ -35,4 +35,8 @@ public class Point {
     public void setColor(int color) {
         this.color = color;
     }
+
+    public boolean equals(Point point){
+        return this.x == point.x && this.y == point.y;
+    }
 }

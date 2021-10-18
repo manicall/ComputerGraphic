@@ -15,9 +15,7 @@ import java.util.ArrayList;
 class MyView extends View {
     private Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    int SCALE = 15;
-    int centerX;
-    int centerY;
+    int SCALE = 20;
 
     public MyView(Context context) {
         super(context);
@@ -40,10 +38,8 @@ class MyView extends View {
             points2D = createField(canvas, Color.BLACK);
             Renderer renderer = new Renderer(points2D);
             //createSimplecdaPolygon(canvas, renderer, Color.RED);
-
-
             createBresenhamMBOPolygon(canvas, renderer, Color.GREEN);
-            fillWithStack(canvas);
+
             flag = !flag;
         }
 
@@ -150,7 +146,7 @@ class MyView extends View {
         }
     }
 
-    void fillWithStack(Canvas canvas){
+    void fillWithStack(){
         Filler filler = new Filler(points2D);
         filler.fillWithStoringInStack(polygon);
     }
@@ -159,6 +155,8 @@ class MyView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         //recFill(Math.round(event.getX() / SCALE), Math.round(event.getY() / SCALE));
         //fillLineByLine(Math.round(event.getX() / SCALE), Math.round(event.getY() / SCALE));
+
+        fillWithStack();
         Log.d("TAG", "onTouchEvent: " + Math.round(event.getX() / SCALE) +
                 " " + Math.round(event.getY() / SCALE));
         invalidate();
