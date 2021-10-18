@@ -12,7 +12,6 @@ public class Filler {
 
     public Filler(ArrayList<ArrayList<Point>> points2D) {
         this.points2D = points2D;
-
     }
 
     void recFill(int oldColor, int newColor, int x, int y) {
@@ -29,10 +28,10 @@ public class Filler {
         filler.flstr(oldColor, newColor, x, y);
     }
 
-    void fillWithStoringInStack(Polygon polygon, int borderColor, int color){
+    void fillWithStoringInStack(int borderColor, int color){
         FillerWithStoringBorderPointsInTheStack filler =
                 new FillerWithStoringBorderPointsInTheStack();
-        filler.fillStack(polygon, borderColor, color);
+        filler.fillStack(borderColor, color);
     }
 
     int getPixel(int x, int y) {
@@ -44,7 +43,7 @@ public class Filler {
     }
 
     class FillerWithStoringBorderPointsInTheStack {
-        void fillStack(Polygon polygon, int borderColor, int color) {
+        void fillStack(int borderColor, int color) {
             Stack<Point> sPoints = new Stack<>();
             for (int i = 0; i < points2D.size(); i++){
                 for (int j = 0; j < points2D.get(i).size(); j++){
@@ -77,23 +76,23 @@ public class Filler {
                     point0 = point1;
                 }
 
-                renderer.bresenham(point0.getX(), point0.getY() - 1,
-                        point1.getX(), point1.getY() + 1, color);
+                Point newPoint0 = point0.clone();
+                Point newPoint1 = point1.clone();
+                newPoint0.decrementY();
+                newPoint1.incrementY();
+
+                renderer.bresenham(newPoint0, newPoint1, color);
             }
 
         }
     }
 
     class FillerLineByLineWithSeed {
-
         int deep = 0;
         int[] stx = new int[1000];
         int[] sty = new int[1000];
         int xmax = points2D.size(), xmin = 0, ymax = points2D.get(0).size(), ymin = 0;
 
-        /*void pop(){
-            x=stx[--deep];y=sty[deep];
-        }*/
         void push(int a, int b) {
             stx[deep] = a;
             sty[deep++] = b;
@@ -150,8 +149,6 @@ public class Filler {
         }
 
     }
-
-
 
 }
 

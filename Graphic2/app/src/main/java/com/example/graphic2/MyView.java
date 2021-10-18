@@ -13,37 +13,29 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 
 class MyView extends View {
-    private Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    int SCALE = 20;
-    int currentMode = 0;
-    int FIELD_COLOR = Color.BLACK;
+    private int currentMode = 0;
+    private int bresenhamMboBorderColor; // используется для определения границ прямоугольника
+    private ArrayList<ArrayList<Point>> points2D;
+    private Polygon polygon;
+    private boolean isPolygonCreated = false;
 
-    int bresenhamMboBorderColor;
-
-    static final int SIMPLE_DDA__STRING_FILL_WITH_SEED = 0;
-    static final int BRESENHAM__WITH_STORING_POINTS_OF_BORDER_IN_STACK = 1;
-    static final int BRESENHAM__SIMPLE_FILL_WITH_SEED_WITH_RECURSION = 2;
-
-    void setMode(int mode){
-        currentMode = mode;
-        isPolygonCreated = false;
-    }
+    public static final int SIMPLE_DDA__STRING_FILL_WITH_SEED = 0;
+    public static final int BRESENHAM__WITH_STORING_POINTS_OF_BORDER_IN_STACK = 1;
+    public static final int BRESENHAM__SIMPLE_FILL_WITH_SEED_WITH_RECURSION = 2;
+    public static final int SCALE = 20;
+    public static final int FIELD_COLOR = Color.BLACK;
 
     public MyView(Context context) {
         super(context);
     }
 
-    ArrayList<ArrayList<Point>> points2D;
-    Polygon polygon;
-
-
-
-    boolean isPolygonCreated = false;
     @Override
     public void onDraw(@NonNull Canvas canvas) {
-        canvas.scale(SCALE, SCALE);
-
+        canvas.scale(SCALE, SCALE); // увеличиваем масштаб изображения
+        // строим поле и прямоугольник,
+        // если они еще не были построенны
         if (isPolygonCreated == false) {
+
             polygon = new Polygon(7, canvas, SCALE);
             points2D = createField(canvas, FIELD_COLOR);
             Renderer renderer = new Renderer(points2D);
@@ -87,40 +79,29 @@ class MyView extends View {
         }
     }
 
-    public void createBresenhamPolygon(Renderer renderer, int color) {
-        ArrayList<Point> vertexes = polygon.getVertexes();
-        //соединение вершин кроме первой и последней
-        int j = vertexes.size() - 1;
-        for (int i = 0; i < vertexes.size(); i++) {
-            renderer.bresenham(
-                    vertexes.get(i).getX(), vertexes.get(i).getY(), // p1
-                    vertexes.get(j).getX(), vertexes.get(j).getY(), // p2
-                    color);
-            j = i;
-        }
-    }
-
     public void createBresenhamMBOPolygon(Renderer renderer, int color) {
         ArrayList<Point> vertexes = polygon.getMboVertexes();
         //соединение вершин кроме первой и последней
         int j = vertexes.size() - 1;
         for (int i = 0; i < vertexes.size(); i++) {
             renderer.bresenham(
-                    vertexes.get(i).getX(), vertexes.get(i).getY(), // p1
-                    vertexes.get(j).getX(), vertexes.get(j).getY(), // p2
+                    vertexes.get(i), // p1
+                    vertexes.get(j), // p2
                     color);
             j = i;
         }
-
-
     }
 
-    void paintVertexes(Renderer renderer, ArrayList<Point> vertexes, int color){
-        for (Point vertex : vertexes){
+    public void createBresenhamPolygon(Renderer renderer, int color) {
+        ArrayList<Point> vertexes = polygon.getVertexes();
+        //соединение вершин кроме первой и последней
+        int j = vertexes.size() - 1;
+        for (int i = 0; i < vertexes.size(); i++) {
             renderer.bresenham(
-                    vertex.getX(), vertex.getY(), // p1
-                    vertex.getX(), vertex.getY(), // p2
+                    vertexes.get(i), // p1
+                    vertexes.get(j), // p2
                     color);
+            j = i;
         }
     }
 
@@ -130,12 +111,33 @@ class MyView extends View {
         int j = vertexes.size() - 1;
         for (int i = 0; i < vertexes.size(); i++) {
             renderer.simplecda(
-                    vertexes.get(i).getX(), vertexes.get(i).getY(), // p1
-                    vertexes.get(j).getX(), vertexes.get(j).getY(), // p2
+                    vertexes.get(i), // p1
+                    vertexes.get(j), // p2
                     color);
             j = i;
         }
     }
+
+    void fillLineByLine(int oldColor, int newColor, int x, int y){
+        Filler filler = new Filler(points2D);
+        try {
+            // пытаемся заполнить
+            filler.fillLineByLine(oldColor, newColor, x, y);
+        } catch (Exception e) {
+            // устраняем последствия не правильного заполнения
+            try {
+                filler.fillLineByLine(newColor, oldColor, x, y);
+            } catch (Exception exception) {
+
+            }
+        }
+    }
+
+    void fillWithStack(int borderColor, int color){
+        Filler filler = new Filler(points2D);
+        filler.fillWithStoringInStack(borderColor, color);
+    }
+
 
     void recFill(int oldColor, int newColor, int x, int y){
         Filler filler = new Filler(points2D);
@@ -152,23 +154,21 @@ class MyView extends View {
         }
     }
 
-    void fillLineByLine(int oldColor, int newColor, int x, int y){
-        Filler filler = new Filler(points2D);
-        try {
-            filler.fillLineByLine(oldColor, newColor, x, y);
-        } catch (Exception e) {
-            // устраняем последствия не правильного заполнения
-            try {
-                filler.fillLineByLine(newColor, oldColor, x, y);
-            } catch (Exception exception) {
-
-            }
+    void paintVertexes(Renderer renderer, ArrayList<Point> vertexes, int color){
+        // раскрашиваем заданные вершины многоугольника в заданный цвет
+        // может использоваться для отладки
+        for (Point vertex : vertexes){
+            renderer.bresenham(
+                    vertex, // p1
+                    vertex, // p2
+                    color);
         }
     }
 
-    void fillWithStack(int borderColor, int color){
-        Filler filler = new Filler(points2D);
-        filler.fillWithStoringInStack(polygon, borderColor, color);
+    public void setMode(int mode){
+        currentMode = mode;
+        isPolygonCreated = false;
+        invalidate();
     }
 
     @Override
@@ -177,7 +177,9 @@ class MyView extends View {
         switch (currentMode){
             case SIMPLE_DDA__STRING_FILL_WITH_SEED:
                 int newColor = Color.CYAN;
-                fillLineByLine(oldColor, newColor, Math.round(event.getX() / SCALE), Math.round(event.getY() / SCALE));
+                fillLineByLine(oldColor, newColor,
+                        Math.round(event.getX() / SCALE),
+                        Math.round(event.getY() / SCALE));
                 break;
             case BRESENHAM__WITH_STORING_POINTS_OF_BORDER_IN_STACK:
                 int color = Color.MAGENTA;
@@ -185,14 +187,13 @@ class MyView extends View {
                 break;
             case BRESENHAM__SIMPLE_FILL_WITH_SEED_WITH_RECURSION:
                 newColor = Color.YELLOW;
-                recFill(oldColor, newColor, Math.round(event.getX() / SCALE), Math.round(event.getY() / SCALE));
+                recFill(oldColor, newColor,
+                        Math.round(event.getX() / SCALE),
+                        Math.round(event.getY() / SCALE));
                 break;
 
         }
-        Log.d("TAG", "onTouchEvent: " + Math.round(event.getX() / SCALE) +
-                " " + Math.round(event.getY() / SCALE));
         invalidate();
         return super.onTouchEvent(event);
     }
-
 }

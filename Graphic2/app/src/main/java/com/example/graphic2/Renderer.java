@@ -1,7 +1,5 @@
 package com.example.graphic2;
 
-import android.graphics.Paint;
-
 import java.util.ArrayList;
 
 public class Renderer {
@@ -12,81 +10,81 @@ public class Renderer {
     }
 
     //Функция вывода отрезка по алгоритму Брезенхема
-    void bresenham(int ix0, int iy0, int ix1, int iy1, int color) {
-        int ix, iy, delta_x, delta_y, esh, sx, sy;
-        int temp, swab, i;
-        ix = ix0;
-        iy = iy0;
-        delta_x = Math.abs(ix1 - ix0);
-        delta_y = Math.abs(iy1 - iy0);
-        if (ix1 - ix0 >= 0) sx = 1;
-        else sx = -1;
-        if (iy1 - iy0 >= 0) sy = 1;
-        else sy = -1;
-        if (ix1 == ix0) sx = 0;
-        if (iy1 == iy0) sy = 0;
+    void bresenham(Point firstPoint, Point secondPoint, int color) {
+        Point point = firstPoint.clone();
+        Point delta = new Point(
+                Math.abs(secondPoint.diffX(firstPoint)),
+                Math.abs(secondPoint.diffY(firstPoint)));
+
+        int incrementX = getIncrement(secondPoint.diffX(firstPoint));
+        int incrementY = getIncrement(secondPoint.diffY(firstPoint));
+
         //Обмен значений delta_x delta_y в зависимости от угла
-        if (delta_y > delta_x) {
-            temp = delta_x;
-            delta_x = delta_y;
-            delta_y = temp;
-            swab = 1;
-        } else swab = 0;
+        boolean swab = false;
+        if (delta.getY() > delta.getX()) {
+            delta.swap();
+            swab = true;
+        }
+
         //Инициализация Е с поправкой на половину пиксела
-        esh = 2 * delta_y - delta_x;
-        for (i = 0; i <= delta_x; i++) {
-            points2D.get(ix).get(iy).setColor(color);
+        int esh = 2 * delta.getY() - delta.getX();
+        for (int i = 0; i <= delta.getX(); i++) {
+            setPixel(point, color);
             if (esh >= 0) {
-                if (swab == 1) ix += sx;
-                else iy += sy;
-                esh = esh - 2 * delta_x;
+                if (swab) point.increaseX(incrementX);
+                else point.increaseY(incrementY);
+                esh -= 2 * delta.getX();
             }
-            if (swab == 1) iy += sy;
-            else ix += sx;
-            esh = esh + 2 * delta_y;
+            if (!swab) point.increaseX(incrementX);
+            else point.increaseY(incrementY);
+            esh += 2 * delta.getY();
         }
     }
 
+    int getIncrement(int different){
+        if (different > 0) return  1;
+        else if (different < 0) return -1;
+        else return 0;
+    }
 
-    void simplecda(int x0, int y0, int x1, int y1, int color) {
-        Paint mPaint = new Paint();
-        mPaint.setColor(color);
+    void simplecda(Point firstPoint, Point secondPoint, int color) {
+        // максимум приращений по x и по y
+        int length = Math.max(
+                Math.abs(secondPoint.diffX(firstPoint)),
+                Math.abs(secondPoint.diffY(firstPoint)));
 
-        int length; // максимум приращений по x и по y
-        int i;      // счетчик, изменяется от 0 до length-1
-        int x, y;    // координаты точки
-        int maxacc;
-        int accx, accy; // изменяются от 0 до maxacc-1
-        int deltax, deltay;
-        length = Math.abs(x1 - x0);
-        if ((i = Math.abs(y1 - y0)) > length) length = i;
-        maxacc = 2 * length; // максимальное значение аккумулятора
-        deltax = 2 * (x1 - x0);
-        deltay = 2 * (y1 - y0);
-        x = x0;
-        y = y0;
-        accx = accy = length;
-        for (i = 0; i <= length; i++) {
-            points2D.get(x).get(y).setColor(color);
-            accx += deltax;
-            accy += deltay;
-            if (accx >= maxacc) {
-                accx -= maxacc;
-                x++;
-            } else if (accx < 0) {
-                accx += maxacc;
-                x--;
-            }
-            if (accy >= maxacc) {
-                accy -= maxacc;
-                y++;
-            } else if (accy < 0) {
-                accy += maxacc;
-                y--;
-            }
+        // изменяются от 0 до maxacc-1
+        int accumulatorX = length;
+        int accumulatorY = length;
+        int maxAccumulator = 2 * length;
 
+        Point delta = new Point(
+                2 * (secondPoint.diffX(firstPoint)),
+                2 * (secondPoint.diffY(firstPoint)));
+
+        Point point = firstPoint.clone();
+        for (int i = 0; i <= length; i++) {
+            setPixel(point, color);
+            accumulatorX += delta.getX();
+            accumulatorY += delta.getY();
+
+            changePointCoordinate(accumulatorX, maxAccumulator, point, point.getX());
+            changePointCoordinate(accumulatorY, maxAccumulator, point, point.getY());
         }
     }
 
+    int changePointCoordinate(int accumulator, int maxAccumulator, Point point, int coordinate){
+        if (accumulator >= maxAccumulator) {
+            accumulator -= maxAccumulator;
+            point.increment(coordinate);
+        } else if (accumulator < 0) {
+            accumulator += maxAccumulator;
+            point.decrement(coordinate);
+        }
+        return accumulator;
+    }
 
+    void setPixel(Point point, int color) {
+        points2D.get(point.getX()).get(point.getY()).setColor(color);
+    }
 }

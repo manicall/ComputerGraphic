@@ -57,10 +57,12 @@ class Polygon {
         P.remove(0);
         P.add(H.get(0));
 
-        while (true){
+        while (true) {
             int right = 0;
             for (int i = 1; i < P.size(); i++) {
-                if (rotate(vertexes.get(H.get(H.size() - 1)), vertexes.get(P.get(right)), vertexes.get(P.get(i))) < 0)
+                if (rotate(vertexes.get(H.get(H.size() - 1)),
+                        vertexes.get(P.get(right)),
+                        vertexes.get(P.get(i))) < 0)
                     right = i;
             }
             if (P.get(right) == H.get(0)) {
@@ -130,7 +132,6 @@ class Polygon {
     public ArrayList<Point> getVertexes() {
         return vertexes;
     }
-
 
     static int rnd(float min, float max) {
         max -= min;
