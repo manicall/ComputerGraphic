@@ -1,7 +1,5 @@
 package com.example.graphic2;
 
-import android.graphics.Paint;
-
 public class Point {
     private int x;
     private int y;
@@ -18,7 +16,7 @@ public class Point {
         this.color = color;
     }
 
-    public Point clone() {return new Point(x, y); }
+    public Point clone() { return new Point(x, y); }
 
     public int getX() {
         return x;

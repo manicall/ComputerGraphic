@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import java.util.ArrayList;
 
 class Polygon {
-
     private float left;
     private float right;
     private float top;
@@ -13,7 +12,6 @@ class Polygon {
 
     private ArrayList<Point> vertexes = new ArrayList<>();
     private ArrayList<Point> mboVertexes = new ArrayList<>();
-
 
     Polygon(int numOfVertexes, Canvas canvas, int scale) {
         for (int i = 0; i < numOfVertexes; i++) {

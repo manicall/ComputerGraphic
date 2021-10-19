@@ -5,12 +5,12 @@ import java.util.ArrayList;
 public class Renderer {
     private ArrayList<ArrayList<Point>> points2D;
 
-    Renderer(ArrayList<ArrayList<Point>> points2D) {
+    public Renderer(ArrayList<ArrayList<Point>> points2D) {
         this.points2D = points2D;
     }
 
     //Функция вывода отрезка по алгоритму Брезенхема
-    void bresenham(Point firstPoint, Point secondPoint, int color) {
+    public void bresenham(Point firstPoint, Point secondPoint, int color) {
         Point point = firstPoint.clone();
         Point delta = new Point(
                 Math.abs(secondPoint.diffX(firstPoint)),
@@ -41,13 +41,13 @@ public class Renderer {
         }
     }
 
-    int getIncrement(int different){
+    private int getIncrement(int different){
         if (different > 0) return  1;
         else if (different < 0) return -1;
         else return 0;
     }
 
-    void simplecda(Point firstPoint, Point secondPoint, int color) {
+    public void simpleDDA(Point firstPoint, Point secondPoint, int color) {
         String X = "x";
         String Y = "y";
 
@@ -76,7 +76,7 @@ public class Renderer {
         }
     }
 
-    int changePointCoordinate(int accumulator, int maxAccumulator, Point point, String coordinate){
+    private int changePointCoordinate(int accumulator, int maxAccumulator, Point point, String coordinate){
         if (accumulator >= maxAccumulator) {
             accumulator -= maxAccumulator;
             point.increment(coordinate);
@@ -87,7 +87,7 @@ public class Renderer {
         return accumulator;
     }
 
-    void setPixel(Point point, int color) {
+    private void setPixel(Point point, int color) {
         points2D.get(point.getX()).get(point.getY()).setColor(color);
     }
 }

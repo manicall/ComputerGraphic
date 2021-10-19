@@ -4,9 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -23,7 +23,7 @@ class MyView extends View {
     public static final int BRESENHAM__WITH_STORING_POINTS_OF_BORDER_IN_STACK = 1;
     public static final int BRESENHAM__SIMPLE_FILL_WITH_SEED_WITH_RECURSION = 2;
     public static final int SCALE = 20;
-    public static final int FIELD_COLOR = Color.BLACK;
+    public static final int FIELD_COLOR = Color.WHITE;
 
     public MyView(Context context) {
         super(context);
@@ -51,7 +51,7 @@ class MyView extends View {
                     createBresenhamPolygon(renderer, Color.BLUE);
                     break;
             }
-            isPolygonCreated = !isPolygonCreated;
+            isPolygonCreated = true;
         }
 
         createPicture(canvas);
@@ -110,7 +110,7 @@ class MyView extends View {
         //соединение вершин кроме первой и последней
         int j = vertexes.size() - 1;
         for (int i = 0; i < vertexes.size(); i++) {
-            renderer.simplecda(
+            renderer.simpleDDA(
                     vertexes.get(i), // p1
                     vertexes.get(j), // p2
                     color);
@@ -120,15 +120,17 @@ class MyView extends View {
 
     void fillLineByLine(int oldColor, int newColor, Point point){
         Filler filler = new Filler(points2D);
+        Point clonePoint = point.clone();
         try {
             // пытаемся заполнить
             filler.fillLineByLine(oldColor, newColor, point);
         } catch (Exception e) {
             // устраняем последствия не правильного заполнения
             try {
-                filler.fillLineByLine(newColor, oldColor, point);
+                filler.fillLineByLine(newColor, oldColor, clonePoint);
             } catch (Exception exception) {
-
+                Toast.makeText(getContext(), "Попытка залить не замкнутую область",
+                        Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -137,7 +139,6 @@ class MyView extends View {
         Filler filler = new Filler(points2D);
         filler.fillWithStoringInStack(borderColor, color);
     }
-
 
     void recFill(int oldColor, int newColor, int x, int y){
         Filler filler = new Filler(points2D);
@@ -149,19 +150,9 @@ class MyView extends View {
             try {
                 filler.recFill(newColor, oldColor, x, y);
             } catch (Exception exception) {
-
+                Toast.makeText(getContext(), "Попытка залить не замкнутую область",
+                        Toast.LENGTH_SHORT).show();
             }
-        }
-    }
-
-    void paintVertexes(Renderer renderer, ArrayList<Point> vertexes, int color){
-        // раскрашиваем заданные вершины многоугольника в заданный цвет
-        // может использоваться для отладки
-        for (Point vertex : vertexes){
-            renderer.bresenham(
-                    vertex, // p1
-                    vertex, // p2
-                    color);
         }
     }
 
