@@ -22,8 +22,8 @@ class MyView extends View {
     public static final int SIMPLE_DDA__STRING_FILL_WITH_SEED = 0;
     public static final int BRESENHAM__WITH_STORING_POINTS_OF_BORDER_IN_STACK = 1;
     public static final int BRESENHAM__SIMPLE_FILL_WITH_SEED_WITH_RECURSION = 2;
-    public static final int SCALE = 20;
-    public static final int FIELD_COLOR = Color.WHITE;
+    public static final int SCALE = 5;
+    public static final int FIELD_COLOR = Color.BLACK;
 
     public MyView(Context context) {
         super(context);
